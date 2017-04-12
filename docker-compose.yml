@@ -1,4 +1,4 @@
-version: '2'
+version: '3'
 
 services:
 
@@ -7,8 +7,7 @@ services:
     build: './_docker/nginx'
     volumes:
       - ./logs/nginx/:/var/log/nginx
-    volumes_from:
-      - volumes_fe_source
+      - ./frontend:/var/www/frontend
     ports:
       - "80:80"
       - "443:443"
@@ -20,16 +19,16 @@ services:
     build: './_docker/hhvm'
     expose:
       - "9000"
-    volumes_from:
-      - volumes_be_source
+    volumes:
+      - ./api:/var/www/api
 
   # MariaDB Database Server
   mariadb:
     build: './_docker/mariadb'
     ports:
       - "3306:3306"
-    volumes_from:
-      - volumes_data
+    volumes:
+      - ./data/mysql:/var/lib/mysql
     environment:
       MYSQL_DATABASE: "btdev"
       MYSQL_USER: "dev"
@@ -42,21 +41,3 @@ services:
     ports:
       - "11300:11300"
     privileged: true
-
-  # Front-end Code Container
-  volumes_fe_source:
-    image: tianon/true
-    volumes:
-      - ./frontend:/var/www/frontend
-
-  # API Code Container
-  volumes_be_source:
-    image: tianon/true
-    volumes:
-      - ./api:/var/www/api
-
-  # Databases/Data Container
-  volumes_data:
-    image: tianon/true
-    volumes:
-      - ./data/mysql:/var/lib/mysql
